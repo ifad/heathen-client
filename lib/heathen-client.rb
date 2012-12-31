@@ -27,6 +27,9 @@ module Heathen
     end
 
     def convert(action, options)
+
+      options.merge!(action: action)
+
       # in Rails, Hash has a read method, but this makes
       # RestClient think that the hash is a File. bah.
       class << options
@@ -34,7 +37,8 @@ module Heathen
           args.first.to_s == 'read' ? false : super
         end
       end
-      RestClient.post(@base_uri.to_s + '/convert', options.merge(action: action)) do |response|
+
+      RestClient.post(@base_uri.to_s + '/convert', options) do |response|
         Yajl::Parser.parse(response.body)
       end
     end
