@@ -27,10 +27,8 @@ module Heathen
     end
 
     def convert(action, options)
-      RestClient.post((@base_uri + '/convert').to_s, options.merge(action: action)) do |response|
-        if response.code == 200
-          Yajl::Parser.parse(response.body)
-        end
+      RestClient.post(@base_uri.to_s + '/convert', options.merge(action: action)) do |response|
+        Yajl::Parser.parse(response.body)
       end
     end
 
