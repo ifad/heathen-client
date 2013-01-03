@@ -30,9 +30,9 @@ module Heathen
         !error.nil?
       end
 
-      def get(which = :converted)
+      def get(which = :converted, &block)
         unless error?
-          RestClient.get(send(which))
+          RestClient.get(send(which), &block)
         end
       end
     end
