@@ -1,8 +1,13 @@
 module Heathen
   class Client
     class Response
-      def initialize(body)
-        @parsed = Yajl::Parser.parse(body)
+      def initialize(response)
+        @status = response.code
+        begin
+          @parsed = Yajl::Parser.parse(response.body)
+        rescue Exception => e
+          @parsed = { 'error' => e.message }
+        end
       end
 
       def original
@@ -13,8 +18,22 @@ module Heathen
         @parsed['converted']
       end
 
+      def error
+        @parsed['error']
+      end
+
+      def success?
+        error.nil?
+      end
+
+      def error?
+        !error.nil?
+      end
+
       def get(which = :converted)
-        RestClient.get(send(which))
+        unless error?
+          RestClient.get(send(which))
+        end
       end
     end
   end
