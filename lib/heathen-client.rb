@@ -1,5 +1,6 @@
 require 'heathen-client/version'
 require 'heathen-client/interface'
+require 'heathen-client/response'
 
 require 'uri'
 require 'yajl'
@@ -8,7 +9,7 @@ require 'rest_client'
 module Heathen
   class Client
 
-    extend Heathen::Client::Interface
+    extend Interface
 
     DEFAULT_BASE_URI = 'http://redgem.ifad.org/heathen'
 
@@ -39,7 +40,7 @@ module Heathen
       end
 
       RestClient.post(@base_uri.to_s + '/convert', options) do |response|
-        Yajl::Parser.parse(response.body)
+        Response.new(response.body)
       end
     end
 
