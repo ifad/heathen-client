@@ -1,7 +1,8 @@
 module Heathen
   class Client
     class Response
-      def initialize(response)
+      def initialize(client, response)
+        @client = client
         @status = response.code
         begin
           @parsed = Yajl::Parser.parse(response.body)
@@ -10,12 +11,12 @@ module Heathen
         end
       end
 
-      def original
-        @parsed['original']
+      def original(file = nil)
+        url('original', file)
       end
 
-      def converted
-        @parsed['converted']
+      def converted(file = nil)
+        url('converted', file)
       end
 
       def error
@@ -35,6 +36,16 @@ module Heathen
           RestClient.get(send(which), &block)
         end
       end
+
+      protected
+
+        def url(which, file = nil)
+          @parsed[which.to_s].tap do |u|
+            if u && file
+              @client.download(u, file: file)
+            end
+          end
+        end
     end
   end
 end

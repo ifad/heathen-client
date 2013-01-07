@@ -40,21 +40,34 @@ module Heathen
       end
 
       RestClient.post(@base_uri.to_s + '/convert', options) do |response|
-        Response.new(response.body)
+        Response.new(self, response.body)
       end
     end
 
     def download(url, options)
-      dir = Pathname(options.fetch(:dir))
+      file = options.fetch(:file, nil)
+      dir  = file ? nil : Pathname(options.fetch(:dir))
 
-      unless dir.directory?
+      if dir && !dir.directory?
         raise "Not a directory: #{dir}"
+
+      elsif !file || (file && !file.respond_to?(:write))
+        raise 'File or directory must be given.'
       end
 
       RestClient.get((@base_uri + URI.parse(url).path).to_s) do |response|
         disposition = response.headers[:content_disposition]
         filename    = URI.decode(disposition.match(/filename\=\"(.+?)\"/)[1])
-        File.open(dir + filename, "wb") { |f| f.write(response.body) }
+
+        if dir
+          File.open(dir + filename, "wb") { |f| f.write(response.body) }
+        else
+          file.write(response.body)
+        end
+
+        if file
+          file.close
+        end
       end
     end
   end
