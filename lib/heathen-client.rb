@@ -1,6 +1,6 @@
-require 'heathen-client/version'
-require 'heathen-client/interface'
-require 'heathen-client/response'
+require 'heathen/client/version'
+require 'heathen/client/interface'
+require 'heathen/client/response'
 
 require 'uri'
 require 'yajl'
