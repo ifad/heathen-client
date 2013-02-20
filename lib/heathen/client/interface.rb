@@ -1,21 +1,35 @@
 module Heathen
   class Client
     module Interface
-      def office_to_pdf(path)
-        client.convert(:office_to_pdf, file: File.new(path, "rb"), multipart: true)
+
+      def pdf(args = { })
+        convert(:pdf, shared_args(args))
       end
 
-      def html_to_pdf(path)
-        client.convert(:html_to_pdf, file: File.new(path, "rb"), multipart: true)
+      def ocr(args = { })
+        convert(:ocr, shared_args(args).merge(language: args.fetch(:language)))
       end
 
-      def url_to_pdf(url)
-        client.convert(:url_to_pdf, url: url)
+      def convert(action, options)
+        client.convert(action, options)
       end
 
-      def download(url, dir)
-        client.download(url, dir: dir)
-      end
+      private
+
+        def shared_args(args)
+
+          shared = { }
+
+          if file = args[:file]
+            shared[:file]      = file.is_a?(IO) ? file : File.new(file, "rb")
+            shared[:multipart] = true
+
+          elsif url = args[:url]
+            shared[:url] = URL.parse(url).to_s
+          end
+
+          shared
+        end
     end
   end
 end

@@ -5,22 +5,23 @@ require 'heathen/client/response'
 require 'uri'
 require 'yajl'
 require 'rest_client'
+require 'pathname'
 
 module Heathen
   class Client
 
     extend Interface
 
-    DEFAULT_BASE_URI = 'http://redgem.ifad.org/heathen'
+    DEFAULT_BASE_URI = 'http://localhost:9292'
 
-    @@client = nil
+    class << self
+      def client
+        @client ||= new
+      end
 
-    def self.client
-      @@client ||= new
-    end
-
-    def self.client=(c)
-      @@client = c
+      def client=(c)
+        @client = c
+      end
     end
 
     def initialize(options = { })
@@ -32,14 +33,17 @@ module Heathen
       options.merge!(action: action)
 
       # in Rails, Hash has a read method, but this makes
-      # RestClient think that the hash is a File. bah.
+      # RestClient think that the hash is a File.
+      #
+      # this fixes compatitbility with Rails without
+      # needing to patch RestClient
       class << options
         def respond_to?(*args)
           args.first.to_s == 'read' ? false : super
         end
       end
 
-      RestClient.post(@base_uri.to_s + '/convert', options) do |response|
+      RestClient.post((@base_uri + 'convert').to_s, options) do |response|
         Response.new(self, response.body)
       end
     end

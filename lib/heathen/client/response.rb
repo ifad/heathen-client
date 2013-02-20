@@ -1,13 +1,16 @@
 module Heathen
   class Client
     class Response
+
+      attr_reader :data
+
       def initialize(client, response)
         @client = client
         @status = response.code
         begin
-          @parsed = Yajl::Parser.parse(response.body)
-        rescue Exception => e
-          @parsed = { 'error' => e.message }
+          @data = Yajl::Parser.parse(response.body)
+        rescue Exception
+          @data = { 'error' => 'Internal Server Error' }
         end
       end
 
@@ -20,7 +23,7 @@ module Heathen
       end
 
       def error
-        @parsed['error']
+        data['error']
       end
 
       def success?
@@ -31,16 +34,27 @@ module Heathen
         !error.nil?
       end
 
+      # yields data to block
       def get(which = :converted, &block)
         unless error?
           RestClient.get(send(which), &block)
         end
       end
 
+      # convenience method
+      def download(args = { })
+        File.open(args[:path], "wb") do |dest|
+          get(args.fetch(:which, :converted)) do |data|
+            dest.write(data)
+          end
+          dest.path
+        end
+      end
+
       protected
 
         def url(which, file = nil)
-          @parsed[which.to_s].tap do |u|
+          data[which.to_s].tap do |u|
             if u && file
               @client.download(u, file: file)
             end
