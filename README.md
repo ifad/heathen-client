@@ -75,6 +75,7 @@ end
 ### Converting an image to PDF with searching/selection
 
 `response = Heathen::Client.ocr(file: "/path/to/text_image.tiff")`
+
 Downloading/saving is the same as shown above.
 
 # License
