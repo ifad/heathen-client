@@ -31,6 +31,10 @@ module Heathen
     def convert(action, options)
 
       options.merge!(action: action)
+      headers = {
+        content_type: :json,
+        accept: :json
+      }
 
       # in Rails, Hash has a read method, but this makes
       # RestClient think that the hash is a File.
@@ -43,7 +47,7 @@ module Heathen
         end
       end
 
-      RestClient.post((@base_uri + 'convert').to_s, options) do |response|
+      RestClient.post(@base_uri.to_s + '/convert', options, headers) do |response|
         Response.new(self, response.body)
       end
     end
