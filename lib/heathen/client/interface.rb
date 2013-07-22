@@ -6,8 +6,8 @@ module Heathen
         convert(:pdf, shared_args(args))
       end
 
-      def docx(args = { })
-        convert(:docx, shared_args(args))
+      def doc(args = { })
+        convert(:doc, shared_args(args))
       end
 
       def ocr(args = { })
