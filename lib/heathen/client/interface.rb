@@ -6,6 +6,10 @@ module Heathen
         convert(:pdf, shared_args(args))
       end
 
+      def docx(args = { })
+        convert(:docx, shared_args(args))
+      end
+
       def ocr(args = { })
         convert(:ocr, shared_args(args).merge(language: args.fetch(:language)))
       end
